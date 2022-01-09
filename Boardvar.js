@@ -17,7 +17,7 @@ const Boardvar = mongoose.Schema({
     Vid:Number,
     varname:String,
     Type: String,
-    State: [Schema.Types.Mixed], //input:[1/0/0.56] output:[{"Date":"0.543","value":"11.2"},{"Date":"","value"":"""}]
+    State: {Typeoftype: String ,Value:[]}, //input:[1/0/0.56] output:[{"Date":"0.543","value":"11.2"},{"Date":"","value"":"""}]
     rendercomponent: String,
 })
 
@@ -29,3 +29,4 @@ module.exports = {
 }
 
 
+// db.boardvars.update({'Vid':4},{$set:{'State':[0]}})

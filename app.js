@@ -26,4 +26,4 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 app.use("/api",require("./apiroutes.js"));
 app.get("/",(req,res)=> (res.json("Welcome to my page")));
-app.listen("3000",()=> {console.log("connected to web")});
+app.listen("3000","0.0.0.0",()=> {console.log("connected to web")});

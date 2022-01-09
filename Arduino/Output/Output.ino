@@ -1,7 +1,10 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <Arduino_JSON.h>
+#include <Vector.h>
+#include <ArduinoSTL.h>
 
+Vector<int> values;
 const char* ssid = "Wong_2.4GHz@unifi";
 const char* password = "60127886883@60127882883";
 
@@ -11,12 +14,17 @@ const char* serverName = "http://192.168.0.105:3000/api/interface";
 // Update interval time set to 5 seconds
 const long interval = 5000;
 unsigned long previousMillis = 0;
-
 String outputsState;
+//vector declareation
+const int ELEMENT_COUNT_MAX = 20;
+int storage_array[ELEMENT_COUNT_MAX];
+Vector<int> vector(storage_array);
+
 
 void setup() {
   Serial.begin(115200);
-  
+  vector.push_back(15);
+  Serial.print(find(vector.begin(), vector.end(), 15) != vector.end()))
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
   while(WiFi.status() != WL_CONNECTED) { 
@@ -34,6 +42,28 @@ void loop() {
   if(currentMillis - previousMillis >= interval) {
       // Check WiFi connection status
     if(WiFi.status()== WL_CONNECTED ){ 
+      
+      checkingoutput(serverName);
+
+      checkinginput(vector);
+
+      previousMillis = currentMillis;
+    }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
+  }
+}
+
+void checkinginput(Vector<int> value){
+      outputsState = httpPOSTRequest(serverName);
+      Serial.println(outputsState);
+      JSONVar myObject = JSON.parse(outputsState);
+  
+   vector.push_back(77);
+}
+
+void checkingoutput(const char* serverName){
       outputsState = httpPOSTRequest(serverName);
       Serial.println(outputsState);
       JSONVar myObject = JSON.parse(outputsState);
@@ -48,25 +78,20 @@ void loop() {
       Serial.println(myObject);
     
        //myObject.keys(); //can be used to get an array of all the keys in the object
-      JSONVar keys = myObject[0].keys();
-
-      Serial.println(keys);
-
      for(int i=0;i< myObject.length();i++){
-      int pin = (myObject[i][keys[0]]);
-      int value = (myObject[i][keys[1]][0]);
-      String msg = "GPIO - " + String(pin) + " set to - " + String(value) ;
+      int pin = (myObject[i]["Vid"]);
+      JSONVar State = myObject[i]["State"];
+      String Typeoftype = JSON.stringify(State["Typeoftype"]);
+      int value = State["Value"][0];
+      String msg = "GPIO - " + String(pin) + " set to - " + String(value) + " is a"  + Typeoftype ;
       Serial.println(msg) ;  
       pinMode(pin, OUTPUT);
-      digitalWrite(pin,value);  
-     }
 
-      previousMillis = currentMillis;
-    }
-    else {
-      Serial.println("WiFi Disconnected");
-    }
-  }
+      if(Typeoftype == "Digital"){digitalWrite(pin,value); } 
+      else if (Typeoftype == "Analog") {AnalogWrite(pin,value);}
+      else if (Typeoftype == "Tune") {   Tone(pin, value);delay(1000);Tone(pin,0);delay(1000);}
+      else {Serial.print("no result matched");}
+      }
 }
 
 String httpPOSTRequest(const char* serverName) {
@@ -91,3 +116,14 @@ String httpPOSTRequest(const char* serverName) {
 }
 
 
+void AnalogWrite(int pin ,int PWM){
+  ledcSetup(0, 5000, 8); // 16 channels,freq,resolution in bits
+  ledcAttachPin(pin, 0);
+  ledcWrite(0, PWM);
+}
+
+void Tone(int pin ,int freq){
+  ledcSetup(1, freq, 8); // 16 channels,freq,resolution in bits (2000-5000)
+  ledcAttachPin(pin, 0);
+  ledcWrite(0, 127);
+}

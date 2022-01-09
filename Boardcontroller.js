@@ -76,7 +76,7 @@ exports.boardinterface = (req,res) => {   //update only mah (varid) ,(bid) ,
         })
          res.json("updated")
 }
-/* debugged*/
+/* debugged  {Boardname,Type,} */
 if(req.body.Type == "Output"){
     Boardi.findOne({"BoardName":req.body.BoardName},{"Bid":1,"_id":0}).then((myObj)=>{
         Boardvari.find({"Bid":myObj["Bid"]},{"Vid":1,"State":1,"_id":0}).then((myobj) => {

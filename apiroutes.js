@@ -11,7 +11,7 @@ router.route("/index").get(controller.index).post(controller.new);
 
 router.route("/id").get(controller.view).patch(controller.update).put(controller.update).delete(controller.delete);
 
-router.route("/inteface").post(controller.boardinterface)
+router.route("/interface").post(controller.boardinterface)
 
 
 
